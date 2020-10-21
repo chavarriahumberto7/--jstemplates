@@ -13,6 +13,7 @@ function showLoadingSpinner(){
     quoteContainer.hidden=true;
 }
 
+let quotesList = [];
 //hidding loading option
 function removeLoadingSpinner(){
     if(!loader.hidden){
@@ -21,36 +22,43 @@ function removeLoadingSpinner(){
     }
 }
 
+//new quote function
+function newQuote() {
+    showLoadingSpinner();
+    const quote = quotesList[Math.floor(Math.random() * quotesList.length)];
+    if (!quote.author) {
+      authorText.textContent = 'Unknown';
+    } else {
+      authorText.textContent = quote.author;
+    }
+    if (quote.text.length > 120) {
+      quoteText.classList.add('long-quote');
+    } else {
+      quoteText.classList.remove('long-quote');
+    }
+    quoteText.textContent = quote.text;
+    removeLoadingSpinner();
+  }
+
 //Get quote from API
 
 async function getQuote() {
     showLoadingSpinner();
-    const proxyUrl = 'http://cors-anywhere.herokuapp.com/';
-    const apiUrl = 'http://api.forismatic.com/api/1.0/?method=getQuote&lang=en&format=json';
+    const apiUrl = 'https://type.fit/api/quotes';
+    //const apiUrl = 'http://api.forismatic.com/api/1.0/?method=getQuote&lang=en&format=json';
 
     try {
-        const response = await fetch(proxyUrl + apiUrl);
-        const data = await response.json();
-        if(data.quoteAuthor===''){
-
-            authorText.innerText='Unknown';
-        }else{
-
-            authorText.innerText=data.quoteAuthor;
-        }
-        //redice fpmt soze fpr ñpmg qiptes
-
-        if(data.quoteText.length>50){
-            quoteText.classList.add('long-quote');
-        }
-        quoteText.innerText=data.quoteText;
-
-        //hiding loader and getting the right element displayed
-        removeLoadingSpinner();
+        const response = await fetch(apiUrl);
+        quotesList = await response.json();
+        newQuote();
 
     } catch (error) {
-        getQuote();
-        console.log('whoops, no quote', error);
+       // getQuote();
+        //nsole.log('whoops, no quote', error);
+        removeLoadingSpinner();
+        newQuoteBtn.hidden = false;
+    quoteContainer.hidden = true;
+    console.log('Log: getQuote -> error', error);
     }
 
 }
@@ -91,7 +99,17 @@ $(function() {
 
 	$('.share-linkedin').click(function(){
 		open_window('https://www.linkedin.com/shareArticle?mini=true&url='+ARTICLE_URL+'&title='+ARTICLE_TITLE+'&summary=&source=', 'linkedin_share');
-	});
+    });
+    
+    {+
+
+
+
+
+
+
+
+
 
 	$('.share-pinterest').click(function(){
 		open_window('https://pinterest.com/pin/create/button/?url='+ARTICLE_URL+'&media='+MAIN_IMAGE_URL+'&description='+ARTICLE_TITLE, 'pinterest_share');
